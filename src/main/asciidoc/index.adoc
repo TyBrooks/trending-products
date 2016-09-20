@@ -1,3 +1,11 @@
-Request Parameters:
+Request Search Parameters
 
-include::{snippets}/trending-products/response-fields.adoc[]
+include::{snippets}/request-search-params/request-fields.adoc[]
+
+Request Pagination Parameters
+
+include::{snippets}/request-pagination-params/request-fields.adoc[]
+
+Response Parameters:
+
+include::{snippets}/response-params/response-fields.adoc[]

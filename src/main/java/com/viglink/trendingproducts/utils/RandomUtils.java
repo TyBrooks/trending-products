@@ -22,6 +22,15 @@ public class RandomUtils {
         this(new Random());
     }
 
+    public TrendingProduct[] generateTrendingProducts(int num) {
+        TrendingProduct[] generated = new TrendingProduct[num];
+
+        for (int i = 0; i < num; i++)
+            generated[i] = generateTrendingProduct(true);
+
+        return generated;
+    }
+
     public TrendingProduct generateTrendingProduct(boolean isClick) {
         return new TrendingProduct(generateRandomTrend(isClick), generateRandomProduct());
     }

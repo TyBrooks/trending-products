@@ -1,6 +1,10 @@
 package com.viglink.trendingproducts;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.http.ContentType;
@@ -15,6 +19,7 @@ import org.springframework.restdocs.JUnitRestDocumentation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
@@ -22,6 +27,9 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 import static org.springframework.restdocs.restassured.RestAssuredRestDocumentation.documentationConfiguration;
 
 public class ApiDocumentation {
+
+    private JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Rule
     public JUnitRestDocumentation restDocumentation =
@@ -37,8 +45,22 @@ public class ApiDocumentation {
     }
 
     @Test
-    public void testTrendingProductsResponseParams() {
+    public void testTrendingProductsResponseParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        root.put("type", "click");
+        root.put("lookback", "1d");
+        root.put("account", 1234);
+        ArrayNode campaigns = root.putArray("campaigns");
+        campaigns.add(3456);
+        campaigns.add(4567);
+        root.put("category", "HG");
+        root.put("merchant", "ebay");
+        root.put("product", "lamp");
+
+
         RestAssured.given(this.spec)
+                .body(objectMapper.writeValueAsString(root))
+                .contentType(ContentType.JSON)
                 .accept("application/json")
                 .filter(document("response-params", responseFields(
                         fieldWithPath("pagination").description("The current page in the results list"),
@@ -57,30 +79,60 @@ public class ApiDocumentation {
                         fieldWithPath("results[].trend.weight").description("Relative strength of the trend (see type)"),
                         fieldWithPath("results[].trend.type").description("What the weight describes")
                 )))
-                .when().get("/trending-products")
+                .when().post("/trending-products")
                 .then().assertThat().statusCode(is(200));
     }
 
     @Test
-    public void testTrendingProductsRequestParams() {
-        TrendingProductsParameters parameters = new TrendingProductsParameters(TrendType.CLICK, LookbackType.ONE_DAY, 1234L,
-                new Long[] { 3456L, 7891L }, "HG", "ebay", "lamp");
+    public void testRequestSearchParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        root.put("type", "click");
+        root.put("lookback", "1d");
+        root.put("account", 1234);
+        ArrayNode campaigns = root.putArray("campaigns");
+        campaigns.add(3456);
+        campaigns.add(4567);
+        root.put("category", "HG");
+        root.put("merchant", "ebay");
+        root.put("product", "lamp");
 
         RestAssured.given(this.spec)
-                .body(parameters)
+                .body(objectMapper.writeValueAsString(root))
                 .contentType(ContentType.JSON)
-                .filter(document("request-params", requestParameters(
-                        parameterWithName("page").description("The page to retrieve"),
-                        parameterWithName("per_page").description("Entries per page"),
-                        parameterWithName("type").description("'click' | 'revenue'"),
-                        parameterWithName("lookback").description("'1h' | '1d' | '7d' | '30d'"),
-                        parameterWithName("account").description("account id. Leave blank for network-wide."),
-                        parameterWithName("campaigns").description("Campaigns to filter on"),
-                        parameterWithName("category").description("category"),
-                        parameterWithName("merchant").description("Merchant name or domain"),
-                        parameterWithName("product").description("Product title"))))
+                .filter(document("request-search-params", requestFields(
+                        fieldWithPath("type").description("'click' | 'revenue'"),
+                        fieldWithPath("lookback").description("'1h' | '1d' | '7d' | '30d'"),
+                        fieldWithPath("account").description("account id. Leave blank for network-wide."),
+                        fieldWithPath("campaigns").type("array of longs").description("Campaigns to filter on"),
+                        fieldWithPath("category").description("category"),
+                        fieldWithPath("merchant").description("Merchant name or domain"),
+                        fieldWithPath("product").description("Product title"))))
                 .when().post("/trending-products")
                 .then().assertThat().statusCode(is(200));
     }
+
+    @Test
+    public void testPageParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        //pagination params
+        root.put("page", 2);
+        root.put("per_page", 100);
+        root.put("type", "click");
+        root.put("lookback", "1d");
+
+
+        RestAssured.given(this.spec)
+                .body(objectMapper.writeValueAsString(root))
+                .contentType(ContentType.JSON)
+                .filter(document("request-pagination-params", requestFields(
+                        fieldWithPath("page").description("page offset to use"),
+                        fieldWithPath("per_page").description("number of items per page"),
+                        fieldWithPath("type").ignored(),
+                        fieldWithPath("lookback").ignored())))
+                .when().post("/trending-products")
+                .then().assertThat().statusCode(is(200));
+    }
+
+
 
 }
