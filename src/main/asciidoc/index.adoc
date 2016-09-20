@@ -1,0 +1,3 @@
+Request Parameters:
+
+include::{snippets}/trending-products/response-fields.adoc[]
