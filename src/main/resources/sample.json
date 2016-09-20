@@ -1,0 +1,136 @@
+{
+  "pagination": {
+    "page": 1,
+    "total": 1
+  }, "results": [{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  },{
+    "product": {
+      "id": 1234,
+      "imageUrl": "http://www.nike.com/sneakers",
+      "title": "Nike's rad new sneakers",
+      "price": 65.75,
+      "merchantName": "nike",
+      "targetUrl": "http://www.nike.com/shoes/1234",
+      "category": "SH"
+    }, "trend": {
+      "weight": 10400,
+      "type": "click"
+    }
+  }]
+}
