@@ -1,11 +1,46 @@
-Request Search Parameters
+= Trending Products API
 
+:toc: left
+
+== Request
+
+======  Request Parameters
+
+[cols="1,1,4"]
 include::{snippets}/request-search-params/request-fields.adoc[]
 
-Request Pagination Parameters
+====== Required Fields
+There are currently two required fields: "type" and "lookback".
 
-include::{snippets}/request-pagination-params/request-fields.adoc[]
+include::{snippets}/request-min-params/curl-request.adoc[]
 
-Response Parameters:
+====== Pagination
+Pagination can be triggered with the 'page' and 'per_page' query parameters.
 
-include::{snippets}/response-params/response-fields.adoc[]
+include::{snippets}/request-pagination-params/curl-request.adoc[]
+
+
+== Response
+
+===== Organization:
+
+[cols="3,2,7"]
+include::{snippets}/response-high-level/response-fields.adoc[]
+
+===== Product
+
+[cols="3,2,7"]
+include::{snippets}/response-product/response-fields.adoc[]
+
+===== Trend
+
+[cols="3,2,7"]
+include::{snippets}/response-trend/response-fields.adoc[]
+
+===== Sample Response
+
+include::{snippets}/response-params/http-response.adoc[]
+
+===== Sample Error Response
+
+include::{snippets}/bad-request/http-response.adoc[]

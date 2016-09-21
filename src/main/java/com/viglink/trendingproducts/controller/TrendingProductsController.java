@@ -56,17 +56,23 @@ public class TrendingProductsController {
 
     private ObjectNode createProductsResponse(TrendingProduct[] results, int page, int perPage) {
         ObjectNode root = nodeFactory.objectNode();
-        root.putArray("results").addAll(objectMapper.convertValue(results, ArrayNode.class));
+        ObjectNode pagination = root.putObject("pagination");
 
         if (results.length < perPage) {
-            root.put("page", 1);
-            root.put("total", 1);
+            pagination.put("page", 1);
+            pagination.put("total", 1);
+            root.putArray("results").addAll(objectMapper.convertValue(results, ArrayNode.class));
         } else {
-            boolean isRemainder = (results.length % perPage) == 0;
+            boolean isRemainder = (results.length % perPage) != 0;
             int total = results.length / perPage + (isRemainder ? 1 : 0);
 
-            root.put("page", Math.min(page, total));
-            root.put("total", total);
+            int numResults = (page >= total && isRemainder) ? results.length % perPage : perPage;
+            TrendingProduct[] subset = new TrendingProduct[numResults];
+            System.arraycopy(results, 0, subset, 0, numResults);
+
+            pagination.put("page", Math.min(page, total));
+            pagination.put("total", total);
+            root.putArray("results").addAll(objectMapper.convertValue(subset, ArrayNode.class));
         }
 
         return root;
