@@ -1,5 +1,6 @@
 package com.viglink.trendingproducts.controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.viglink.trendingproducts.type.LookbackType;
@@ -8,7 +9,7 @@ import com.viglink.trendingproducts.type.TrendType;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TrendingProductsParameters {
 // TODO add annotation-based validation here. Add custom ser/de for lookback enum
     //TODO annotation-based validation doesn't work

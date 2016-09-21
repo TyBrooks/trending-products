@@ -14,8 +14,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.operation.preprocess.Preprocessors;
+import org.springframework.restdocs.restassured.operation.preprocess.RestAssuredPreprocessors;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -44,11 +46,82 @@ public class ApiDocumentation {
     }
 
     @Test
-    public void documentResponseFieldsHighLevel() throws Exception {
+    public void documentRequestSearchParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        // Search
+        root.put("type", "click");
+        root.put("lookback", "1d");
+        root.put("accountId", 1234);
+        ArrayNode campaigns = root.putArray("campaigns");
+        campaigns.add(3456);
+        campaigns.add(4567);
+        root.put("category", "HG");
+        root.put("merchant", "ebay");
+        root.put("product", "lamp");
+
+        RestAssured.given(this.spec)
+                .body(objectMapper.writeValueAsString(root))
+                .contentType(ContentType.JSON)
+                .filter(document("request-search-params", requestFields(
+                        fieldWithPath("type").description("'click' | 'revenue'"),
+                        fieldWithPath("lookback").description("'1h' | '1d' | '7d' | '30d'"),
+                        fieldWithPath("accountId").description("Leave blank for network-wide."),
+                        fieldWithPath("campaigns").type("array of longs").description("Campaigns to filter on"),
+                        fieldWithPath("category").description("VigLink product category. E.g. 'HG>EC'"),
+                        fieldWithPath("merchant").description("Merchant name or domain. Full-text search"),
+                        fieldWithPath("product").description("Full-text search"))))
+                .when().post("/trending-products")
+                .then().assertThat().statusCode(is(200));
+    }
+
+    @Test
+    public void documentRequestPaginationParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        //pagination params
+        root.put("type", "click");
+        root.put("lookback", "1d");
+        root.put("page", 2);
+        root.put("per_page", 2);
+
+        RestAssured.given(this.spec)
+                .body(objectMapper.writeValueAsString(root))
+                .contentType(ContentType.JSON)
+                .filter(document("request-pagination-params", preprocessRequest(RestAssuredPreprocessors.modifyUris().host("qa-trending-1.va.ec2.viglink.com").port(8080)),
+                        preprocessResponse(Preprocessors.prettyPrint(), RestAssuredPreprocessors.modifyUris().host("qa-trending-1.va.ec2.viglink.com").port(8080)), requestFields(
+                                fieldWithPath("page").description("page number to return"),
+                                fieldWithPath("per_page").description("total items to return per page"),
+                                fieldWithPath("type").ignored(),
+                                fieldWithPath("lookback").ignored()
+                        )))
+                .when().post("/trending-products")
+                .then().assertThat().statusCode(is(200));
+    }
+
+    @Test
+    public void documentRequestRequiredParams() throws Exception {
+        ObjectNode root = nodeFactory.objectNode();
+        //pagination params
+        root.put("type", "click");
+        root.put("lookback", "1d");
+
+        RestAssured.given(this.spec)
+                .body(objectMapper.writeValueAsString(root))
+                .contentType(ContentType.JSON)
+                .filter(document("request-min-params", preprocessRequest(RestAssuredPreprocessors.modifyUris().host("qa-trending-1.va.ec2.viglink.com").port(8080)),
+                        preprocessResponse(Preprocessors.prettyPrint(), RestAssuredPreprocessors.modifyUris().host("qa-trending-1.va.ec2.viglink.com").port(8080)), requestFields(
+                                fieldWithPath("type").ignored(),
+                                fieldWithPath("lookback").ignored())))
+                .when().post("/trending-products")
+                .then().assertThat().statusCode(is(200));
+    }
+
+
+    @Test
+    public void documentResponseOrganization() throws Exception {
         ObjectNode root = nodeFactory.objectNode();
         root.put("type", "click");
         root.put("lookback", "1d");
-        root.put("account", 1234);
+        root.put("accountId", 1234);
         ArrayNode campaigns = root.putArray("campaigns");
         campaigns.add(3456);
         campaigns.add(4567);
@@ -71,11 +144,11 @@ public class ApiDocumentation {
     }
 
     @Test
-    public void documentResponseProducts() throws Exception {
+    public void documentTypeProducts() throws Exception {
         ObjectNode root = nodeFactory.objectNode();
         root.put("type", "click");
         root.put("lookback", "1d");
-        root.put("account", 1234);
+        root.put("accountId", 1234);
         ArrayNode campaigns = root.putArray("campaigns");
         campaigns.add(3456);
         campaigns.add(4567);
@@ -104,11 +177,11 @@ public class ApiDocumentation {
     }
 
     @Test
-    public void documentResponseTrends() throws Exception {
+    public void documentTypeTrends() throws Exception {
         ObjectNode root = nodeFactory.objectNode();
         root.put("type", "click");
         root.put("lookback", "1d");
-        root.put("account", 1234);
+        root.put("accountId", 1234);
         ArrayNode campaigns = root.putArray("campaigns");
         campaigns.add(3456);
         campaigns.add(4567);
@@ -132,11 +205,21 @@ public class ApiDocumentation {
     }
 
     @Test
-    public void documentResponseParamsAll() throws Exception {
+    public void documentResponseError() throws Exception {
+        RestAssured.given(this.spec)
+                .body("{\"type\":\"click\"}")
+                .contentType(ContentType.JSON)
+                .filter(document("bad-request", preprocessResponse(Preprocessors.prettyPrint())))
+                .when().post("/trending-products")
+                .then().assertThat().statusCode(is(400));
+    }
+
+    @Test
+    public void testResponseParamsAll() throws Exception {
         ObjectNode root = nodeFactory.objectNode();
         root.put("type", "click");
         root.put("lookback", "1d");
-        root.put("account", 1234);
+        root.put("accountId", 1234);
         ArrayNode campaigns = root.putArray("campaigns");
         campaigns.add(3456);
         campaigns.add(4567);
@@ -144,7 +227,8 @@ public class ApiDocumentation {
         root.put("merchant", "ebay");
         root.put("product", "lamp");
 
-
+        root.put("page", 2);
+        root.put("per_page", 2);
 
         RestAssured.given(this.spec)
                 .body(objectMapper.writeValueAsString(root))
@@ -167,82 +251,8 @@ public class ApiDocumentation {
                         fieldWithPath("results[].trend.weight").description("Relative strength of the trend (see type)"),
                         fieldWithPath("results[].trend.type").description("What the weight describes")
                 )))
-                .when().post("/trending-products?page=1&per_page=3")
-                .then().assertThat().statusCode(is(200));
-    }
-
-    @Test
-    public void testRequestParamsSearch() throws Exception {
-        ObjectNode root = nodeFactory.objectNode();
-        root.put("type", "click");
-        root.put("lookback", "1d");
-        root.put("account", 1234);
-        ArrayNode campaigns = root.putArray("campaigns");
-        campaigns.add(3456);
-        campaigns.add(4567);
-        root.put("category", "HG");
-        root.put("merchant", "ebay");
-        root.put("product", "lamp");
-
-        RestAssured.given(this.spec)
-                .body(objectMapper.writeValueAsString(root))
-                .contentType(ContentType.JSON)
-                .filter(document("request-search-params", requestFields(
-                        fieldWithPath("type").description("'click' | 'revenue'"),
-                        fieldWithPath("lookback").description("'1h' | '1d' | '7d' | '30d'"),
-                        fieldWithPath("account").description("Leave blank for network-wide."),
-                        fieldWithPath("campaigns").type("array of longs").description("Campaigns to filter on"),
-                        fieldWithPath("category").description("VigLink product category. E.g. 'HG>EC'"),
-                        fieldWithPath("merchant").description("Merchant name or domain. Full-text search"),
-                        fieldWithPath("product").description("Full-text search"))))
                 .when().post("/trending-products")
                 .then().assertThat().statusCode(is(200));
-    }
-
-    @Test
-    public void testRequestParamsPagination() throws Exception {
-        ObjectNode root = nodeFactory.objectNode();
-        //pagination params
-        root.put("type", "click");
-        root.put("lookback", "1d");
-
-
-        RestAssured.given(this.spec)
-                .body(objectMapper.writeValueAsString(root))
-                .contentType(ContentType.JSON)
-                .filter(document("request-pagination-params", preprocessResponse(Preprocessors.prettyPrint()), requestParameters(
-                    parameterWithName("page").description("page number to return"),
-                    parameterWithName("per_page").description("total items to return per page")
-                )))
-                .when().post("/trending-products?page=1&per_page=100")
-                .then().assertThat().statusCode(is(200));
-    }
-
-    @Test
-    public void documentRequestParamsRequired() throws Exception {
-        ObjectNode root = nodeFactory.objectNode();
-        //pagination params
-        root.put("type", "click");
-        root.put("lookback", "1d");
-
-        RestAssured.given(this.spec)
-                .body(objectMapper.writeValueAsString(root))
-                .contentType(ContentType.JSON)
-                .filter(document("request-min-params", preprocessResponse(Preprocessors.prettyPrint()), requestFields(
-                        fieldWithPath("type").ignored(),
-                        fieldWithPath("lookback").ignored())))
-                .when().post("/trending-products")
-                .then().assertThat().statusCode(is(200));
-    }
-
-    @Test
-    public void documentErrorResponse() throws Exception {
-        RestAssured.given(this.spec)
-                .body("{\"type\":\"click\"}")
-                .contentType(ContentType.JSON)
-                .filter(document("bad-request", preprocessResponse(Preprocessors.prettyPrint())))
-                .when().post("/trending-products")
-                .then().assertThat().statusCode(is(400));
     }
 
 }
