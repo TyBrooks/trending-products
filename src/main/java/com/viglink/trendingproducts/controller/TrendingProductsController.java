@@ -1,9 +1,7 @@
 package com.viglink.trendingproducts.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -11,15 +9,12 @@ import com.viglink.trendingproducts.model.*;
 import com.viglink.trendingproducts.utils.RandomUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
-import java.io.IOException;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 
 @Controller
@@ -29,19 +24,17 @@ public class TrendingProductsController {
     private RandomUtils randomUtils = new RandomUtils();
     private JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
-    @PostMapping(value = "/trending-products", produces = "application/json")
+    @GetMapping(value = "/trending-products", produces = "application/json")
     @ResponseBody
-    ResponseEntity<ObjectNode> getRealTrending(@Valid @RequestBody TrendingProductsRequest requestParams,
-                           BindingResult validationResult) throws JsonProcessingException {
+    ResponseEntity<ObjectNode> getRealTrending(
+            TrendingProductDto requestParams, BindingResult validationResult,
+            @RequestParam("per_page") int perPage,
+            @RequestParam("page") int page) throws JsonProcessingException {
 
 
         if (validationResult.hasErrors()) {
             return new ResponseEntity<ObjectNode>(createErrorResponse(validationResult), HttpStatus.BAD_REQUEST);
         }
-
-        int page = requestParams.getPage();
-        int perPage = requestParams.getPerPage();
-        TrendingProductsParameters parameters = requestParams.getTrendingProductsParameters();
 
 //        Map<String, String> errors = new HashMap<String, String>();
 //        if (parameters.getType() == null)
@@ -61,7 +54,7 @@ public class TrendingProductsController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ObjectNode> handleInvalidRequestParams(HttpMessageNotReadableException e) throws JsonProcessingException {
+    private ResponseEntity<ObjectNode> handleInvalidRequestParams(Exception e) throws JsonProcessingException {
         ObjectNode root = nodeFactory.objectNode();
         root.put("message", "There were problems with your request parameters");
         ArrayNode errorsList = root.putArray("errors");
@@ -133,84 +126,4 @@ public class TrendingProductsController {
         return root;
     }
 
-    @JsonDeserialize(using = TrendingProductRequestDeserializer.class)
-    private class TrendingProductsRequest {
-        @Valid
-        private TrendingProductsParameters trendingProductsParameters;
-        private int page = 1;
-        private int perPage = 1000;
-
-        public TrendingProductsRequest() {
-        }
-
-        public TrendingProductsParameters getTrendingProductsParameters() {
-            return trendingProductsParameters;
-        }
-
-        public void setTrendingProductsParameters(TrendingProductsParameters trendingProductsParameters) {
-            this.trendingProductsParameters = trendingProductsParameters;
-        }
-
-        public int getPage() {
-            return page;
-        }
-
-        public void setPage(int page) {
-            this.page = page;
-        }
-
-        public int getPerPage() {
-            return perPage;
-        }
-
-        public void setPerPage(int perPage) {
-            this.perPage = perPage;
-        }
-    }
-
-    private class TrendingProductRequestDeserializer extends JsonDeserializer<TrendingProductsRequest> {
-
-        private final ObjectReader paramsReader = objectMapper.readerFor(TrendingProductsParameters.class);
-
-        @Override
-        public TrendingProductsRequest deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-            TrendingProductsRequest request = new TrendingProductsRequest();
-            Map<String, String> fieldErrors = new HashMap<String, String>();
-
-            JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-            if (!(node instanceof ObjectNode)) {
-                fieldErrors.put("all", "invalid json");
-                throw new RuntimeException("invalid json");
-            }
-
-            ObjectNode object = (ObjectNode) node;
-
-            if (object.has("page")) {
-                try {
-                    int page = object.get("page").intValue();
-                    request.setPage(page);
-                } catch (Exception e) {
-                    fieldErrors.put("page", "not a valid integer");
-                }
-
-                object.remove("page");
-            }
-
-            if (object.has("per_page")) {
-                try {
-                    int perPage = object.get("per_page").intValue();
-                    request.setPerPage(perPage);
-                } catch (Exception e) {
-                    fieldErrors.put("perPage", "not a valid integer");
-                }
-
-                object.remove("per_page");
-            }
-
-            TrendingProductsParameters params = paramsReader.readValue(object);
-            request.setTrendingProductsParameters(params);
-
-            return request;
-        }
-    }
 }
