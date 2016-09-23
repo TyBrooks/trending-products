@@ -2,6 +2,9 @@ package com.viglink.trendingproducts.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 public final class Product {
 
     @JsonProperty
@@ -11,15 +14,17 @@ public final class Product {
     @JsonProperty
     private final String title;
     @JsonProperty
-    private final Float price;
+    private final BigDecimal price;
     @JsonProperty
     private final String merchantName;
     @JsonProperty
     private final String targetUrl;
     @JsonProperty
     private final String category;
+    @JsonProperty("trends")
+    private final List<Trend> trends;
 
-    public Product(Long id, String imageUrl, String title, Float price, String merchantName, String targetUrl, String category) {
+    public Product(Long id, String imageUrl, String title, BigDecimal price, String merchantName, String targetUrl, String category, List<Trend> trends) {
         this.id = id;
         this.imageUrl = imageUrl;
         this.title = title;
@@ -27,6 +32,7 @@ public final class Product {
         this.merchantName = merchantName;
         this.targetUrl = targetUrl;
         this.category = category;
+        this.trends = trends;
     }
 
     public Long getId() {
@@ -41,7 +47,7 @@ public final class Product {
         return title;
     }
 
-    public Float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -55,5 +61,9 @@ public final class Product {
 
     public String getCategory() {
         return category;
+    }
+
+    public List<Trend> getTrends() {
+        return trends;
     }
 }
