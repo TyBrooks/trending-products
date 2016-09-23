@@ -6,8 +6,8 @@
 
 ======  Request Parameters
 
-[cols="1,1,4"]
-include::{snippets}/request-search-params/request-fields.adoc[]
+[cols="1,4"]
+include::{snippets}/request-search-params/request-parameters.adoc[]
 
 ====== Required Fields
 There are currently two required fields: "type" and "lookback".

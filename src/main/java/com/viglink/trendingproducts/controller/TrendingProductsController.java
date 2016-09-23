@@ -24,7 +24,7 @@ public class TrendingProductsController {
 
     private RandomUtils randomUtils = new RandomUtils();
 
-    @GetMapping(value = "/product", params = "trend", produces = "application/json")
+    @GetMapping(value = "/products", params = "trend", produces = "application/json")
     @ResponseBody
     ResponseEntity<ApiResponse> getTrending(
             @Valid TrendingProductDto requestParams, BindingResult validationResult,
@@ -36,6 +36,8 @@ public class TrendingProductsController {
             ApiErrorResponse errorResponse = createErrorResponse(validationResult);
             return new ResponseEntity<ApiResponse>(errorResponse, HttpStatus.BAD_REQUEST);
         }
+
+        System.out.println("Received request: " + requestParams);
 
         ApiSuccessResponse<Product> response = generateRandomResponse(page, perPage);
         return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
